@@ -25,9 +25,9 @@ _INTENT_SCHEMA = {
         "location": {
             "type": "OBJECT",
             "properties": {
-                "city": {"type": "STRING"},
-                "state": {"type": "STRING"},
-                "country": {"type": "STRING"},
+                "city": {"type": "STRING", "nullable": True},
+                "state": {"type": "STRING", "nullable": True},
+                "country": {"type": "STRING", "nullable": True},
             },
         },
         "target_type": {"type": "STRING", "enum": ["individual", "business"]},
@@ -37,8 +37,11 @@ _INTENT_SCHEMA = {
 
 _INTENT_PROMPT = """Parse this prospect-discovery search query into structured search parameters. \
 Extract the interest/topic, the audience description, the geographical location (city, state, \
-country — use null for any part not mentioned or not determinable), and whether the query is \
-looking for individuals or businesses. Do not invent a location that isn't implied by the query.
+country), and whether the query is looking for individuals or businesses. Do not invent a \
+location that isn't implied by the query. Each location field must be either a short, real \
+place name (e.g. "Washington DC", "District of Columbia", "USA") or the JSON value null — NEVER \
+a sentence, an explanation, or placeholder text of any kind. If a part of the location isn't \
+mentioned or can't be determined, set that field's JSON value to null, nothing else.
 
 Query: {query}
 

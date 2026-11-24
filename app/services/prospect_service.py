@@ -28,6 +28,7 @@ from app.services.llm_service import LLMServiceError, parse_query_intent
 from app.services.profile_extractor import extract_profile
 from app.services.query_service import build_search_terms
 from app.services.relevance_service import filter_relevant
+from app.utils.normalizers import sanitize_location_part
 from app.utils.validators import validate_query
 
 #: The platform registry — the single place platform selection is decided.
@@ -45,7 +46,11 @@ PLATFORM_SEARCHERS: list[PlatformSearcher] = [
 
 def _location_label(intent: dict) -> str | None:
     location = intent.get("location") or {}
-    parts = [location.get("city"), location.get("state"), location.get("country")]
+    parts = [
+        sanitize_location_part(location.get("city")),
+        sanitize_location_part(location.get("state")),
+        sanitize_location_part(location.get("country")),
+    ]
     joined = ", ".join(p for p in parts if p)
     return joined or None
 
