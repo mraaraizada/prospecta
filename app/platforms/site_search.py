@@ -1,14 +1,14 @@
 """Shared logic for every platform that has no search API of its own: a
-`site:`-restricted Brave Search query, filtered to URLs that actually
-look like a profile/page (not a generic help/login/terms page Google happens to
-have indexed under that domain)."""
+`site:`-restricted real web search (see search_provider.py), filtered to URLs
+that actually look like a profile/page (not a generic help/login/terms page
+that happens to be indexed under that domain)."""
 from __future__ import annotations
 
 import re
 
 import httpx
 
-from app.platforms import web_search
+from app.platforms import search_provider
 from app.platforms.base import PlatformSearchError, RawCandidate
 
 
@@ -20,8 +20,8 @@ async def site_restricted_search(
     profile_path_pattern: re.Pattern[str],
 ) -> list[RawCandidate]:
     try:
-        results = await web_search.search(client, f"site:{domain} {query_terms}")
-    except web_search.GoogleSearchError as exc:
+        results = await search_provider.search(client, f"site:{domain} {query_terms}")
+    except search_provider.SearchProviderError as exc:
         raise PlatformSearchError(str(exc)) from exc
 
     candidates = []

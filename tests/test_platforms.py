@@ -16,13 +16,9 @@ from app.platforms.whatsapp import WhatsAppSearcher
 from app.platforms.x_platform import XSearcher
 from app.platforms.youtube import YouTubeSearcher
 
-BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/web/search"
+CSE_ENDPOINT = "https://google.serper.dev/search"
 YOUTUBE_ENDPOINT = "https://www.googleapis.com/youtube/v3/search"
 INTENT = {"interest": "Football", "audience": "Football lovers", "location": {"city": "Washington DC"}, "target_type": "individual"}
-
-
-def _brave_response(results: list[dict]) -> httpx.Response:
-    return httpx.Response(200, json={"web": {"results": results}})
 
 
 @pytest.fixture
@@ -32,14 +28,14 @@ def client():
 
 @pytest.fixture(autouse=True)
 def configured(monkeypatch):
-    monkeypatch.setattr(settings, "brave_api_key", "test-key")
+    monkeypatch.setattr(settings, "serper_api_key", "test-key")
     monkeypatch.setattr(settings, "youtube_api_key", "test-yt-key")
 
 
 @respx.mock
 async def test_google_searcher_returns_real_result_fields(client):
-    respx.get(BRAVE_ENDPOINT).mock(
-        return_value=_brave_response([{"title": "John Smith - Football Fan", "description": "Loves football in DC", "url": "https://example.com/john"}])
+    respx.post(CSE_ENDPOINT).mock(
+        return_value=httpx.Response(200, json={"organic": [{"title": "John Smith - Football Fan", "snippet": "Loves football in DC", "link": "https://example.com/john"}]})
     )
     results = await GoogleSearcher().search(client, INTENT, "Football lovers Washington DC")
     assert results[0]["platform"] == "Google"
@@ -49,19 +45,22 @@ async def test_google_searcher_returns_real_result_fields(client):
 
 @respx.mock
 async def test_google_searcher_not_configured_raises(client, monkeypatch):
-    monkeypatch.setattr(settings, "brave_api_key", None)
+    monkeypatch.setattr(settings, "serper_api_key", None)
     with pytest.raises(PlatformSearchError, match="Not configured"):
         await GoogleSearcher().search(client, INTENT, "query")
 
 
 @respx.mock
 async def test_linkedin_searcher_filters_to_real_profile_urls(client):
-    respx.get(BRAVE_ENDPOINT).mock(
-        return_value=_brave_response(
-            [
-                {"title": "John Smith", "description": "Football fan in DC", "url": "https://www.linkedin.com/in/johnsmith"},
-                {"title": "LinkedIn Help Center", "description": "General help", "url": "https://www.linkedin.com/help/linkedin/answer/123"},
-            ]
+    respx.post(CSE_ENDPOINT).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "organic": [
+                    {"title": "John Smith", "snippet": "Football fan in DC", "link": "https://www.linkedin.com/in/johnsmith"},
+                    {"title": "LinkedIn Help Center", "snippet": "General help", "link": "https://www.linkedin.com/help/linkedin/answer/123"},
+                ]
+            },
         )
     )
     results = await LinkedInSearcher().search(client, INTENT, "Football lovers Washington DC")
@@ -71,12 +70,15 @@ async def test_linkedin_searcher_filters_to_real_profile_urls(client):
 
 @respx.mock
 async def test_x_searcher_filters_out_status_urls(client):
-    respx.get(BRAVE_ENDPOINT).mock(
-        return_value=_brave_response(
-            [
-                {"title": "John Smith (@johnsmith)", "description": "Football fan", "url": "https://x.com/johnsmith"},
-                {"title": "A post", "description": "...", "url": "https://x.com/johnsmith/status/12345"},
-            ]
+    respx.post(CSE_ENDPOINT).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "organic": [
+                    {"title": "John Smith (@johnsmith)", "snippet": "Football fan", "link": "https://x.com/johnsmith"},
+                    {"title": "A post", "snippet": "...", "link": "https://x.com/johnsmith/status/12345"},
+                ]
+            },
         )
     )
     results = await XSearcher().search(client, INTENT, "Football lovers")
@@ -86,12 +88,15 @@ async def test_x_searcher_filters_out_status_urls(client):
 
 @respx.mock
 async def test_instagram_searcher_filters_out_post_urls(client):
-    respx.get(BRAVE_ENDPOINT).mock(
-        return_value=_brave_response(
-            [
-                {"title": "John Smith", "description": "Football lover", "url": "https://www.instagram.com/johnsmith"},
-                {"title": "A post", "description": "...", "url": "https://www.instagram.com/p/Cabc123/"},
-            ]
+    respx.post(CSE_ENDPOINT).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "organic": [
+                    {"title": "John Smith", "snippet": "Football lover", "link": "https://www.instagram.com/johnsmith"},
+                    {"title": "A post", "snippet": "...", "link": "https://www.instagram.com/p/Cabc123/"},
+                ]
+            },
         )
     )
     results = await InstagramSearcher().search(client, INTENT, "Football lovers")
@@ -101,12 +106,15 @@ async def test_instagram_searcher_filters_out_post_urls(client):
 
 @respx.mock
 async def test_facebook_searcher_filters_out_policy_pages(client):
-    respx.get(BRAVE_ENDPOINT).mock(
-        return_value=_brave_response(
-            [
-                {"title": "John Smith", "description": "Football fan", "url": "https://www.facebook.com/johnsmith"},
-                {"title": "Terms", "description": "...", "url": "https://www.facebook.com/terms/"},
-            ]
+    respx.post(CSE_ENDPOINT).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "organic": [
+                    {"title": "John Smith", "snippet": "Football fan", "link": "https://www.facebook.com/johnsmith"},
+                    {"title": "Terms", "snippet": "...", "link": "https://www.facebook.com/terms/"},
+                ]
+            },
         )
     )
     results = await FacebookSearcher().search(client, INTENT, "Football lovers")
@@ -115,14 +123,14 @@ async def test_facebook_searcher_filters_out_policy_pages(client):
 
 @respx.mock
 async def test_threads_searcher_filters_to_handle_urls(client):
-    respx.get(BRAVE_ENDPOINT).mock(return_value=_brave_response([{"title": "John Smith", "description": "Football", "url": "https://www.threads.net/@johnsmith"}]))
+    respx.post(CSE_ENDPOINT).mock(return_value=httpx.Response(200, json={"organic": [{"title": "John Smith", "snippet": "Football", "link": "https://www.threads.net/@johnsmith"}]}))
     results = await ThreadsSearcher().search(client, INTENT, "Football lovers")
     assert len(results) == 1
 
 
 @respx.mock
 async def test_whatsapp_searcher_finds_real_wa_me_links(client):
-    respx.get(BRAVE_ENDPOINT).mock(return_value=_brave_response([{"title": "Contact us", "description": "WhatsApp", "url": "https://wa.me/12025550147"}]))
+    respx.post(CSE_ENDPOINT).mock(return_value=httpx.Response(200, json={"organic": [{"title": "Contact us", "snippet": "WhatsApp", "link": "https://wa.me/12025550147"}]}))
     results = await WhatsAppSearcher().search(client, INTENT, "football shop")
     assert len(results) == 1
 

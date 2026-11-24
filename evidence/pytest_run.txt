@@ -1,0 +1,70 @@
+C:\Users\raiza\OneDrive\Documents\GitHub\prospecta\.venv\Lib\site-packages\pytest_asyncio\plugin.py:207: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.3.4, pluggy-1.7.0 -- C:\Users\raiza\OneDrive\Documents\GitHub\prospecta\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\raiza\OneDrive\Documents\GitHub\prospecta
+configfile: pytest.ini
+plugins: anyio-4.16.0, asyncio-0.25.2, respx-0.22.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None
+collecting ... collected 54 items / 5 deselected / 49 selected
+
+tests/test_llm_service.py::test_parse_query_intent_returns_structured_parameters PASSED [  2%]
+tests/test_llm_service.py::test_parse_query_intent_missing_api_key PASSED [  4%]
+tests/test_llm_service.py::test_score_relevance_batch_returns_judgments PASSED [  6%]
+tests/test_llm_service.py::test_score_relevance_batch_empty_candidates_skips_the_call PASSED [  8%]
+tests/test_llm_service.py::test_malformed_json_response_is_a_real_failure PASSED [ 10%]
+tests/test_llm_service.py::test_rate_limited_is_a_real_failure PASSED    [ 12%]
+tests/test_normalizers.py::test_extract_email_finds_real_address PASSED  [ 14%]
+tests/test_normalizers.py::test_extract_email_returns_none_when_absent PASSED [ 16%]
+tests/test_normalizers.py::test_extract_phone_finds_real_number PASSED   [ 18%]
+tests/test_normalizers.py::test_extract_phone_rejects_short_digit_sequences PASSED [ 20%]
+tests/test_normalizers.py::test_extract_whatsapp_link_finds_real_link PASSED [ 22%]
+tests/test_normalizers.py::test_extract_whatsapp_link_returns_none_when_absent PASSED [ 24%]
+tests/test_normalizers.py::test_normalize_name_is_case_and_punctuation_insensitive PASSED [ 26%]
+tests/test_normalizers.py::test_normalize_name_distinguishes_different_names PASSED [ 28%]
+tests/test_platforms.py::test_google_searcher_returns_real_result_fields PASSED [ 30%]
+tests/test_platforms.py::test_google_searcher_not_configured_raises PASSED [ 32%]
+tests/test_platforms.py::test_linkedin_searcher_filters_to_real_profile_urls PASSED [ 34%]
+tests/test_platforms.py::test_x_searcher_filters_out_status_urls PASSED  [ 36%]
+tests/test_platforms.py::test_instagram_searcher_filters_out_post_urls PASSED [ 38%]
+tests/test_platforms.py::test_facebook_searcher_filters_out_policy_pages PASSED [ 40%]
+tests/test_platforms.py::test_threads_searcher_filters_to_handle_urls PASSED [ 42%]
+tests/test_platforms.py::test_whatsapp_searcher_finds_real_wa_me_links PASSED [ 44%]
+tests/test_platforms.py::test_youtube_searcher_returns_real_channel_urls PASSED [ 46%]
+tests/test_platforms.py::test_youtube_searcher_api_error_is_a_real_failure PASSED [ 48%]
+tests/test_platforms.py::test_youtube_searcher_not_configured PASSED     [ 51%]
+tests/test_prospect_discovery.py::test_full_pipeline_success PASSED      [ 53%]
+tests/test_prospect_discovery.py::test_invalid_query_is_a_clean_failure_not_a_crash PASSED [ 55%]
+tests/test_prospect_discovery.py::test_llm_intent_failure_is_a_clean_result PASSED [ 57%]
+tests/test_prospect_discovery.py::test_one_platform_failure_does_not_crash_the_whole_request PASSED [ 59%]
+tests/test_prospect_discovery.py::test_no_relevant_results_returns_empty_prospect_list_not_a_failure PASSED [ 61%]
+tests/test_prospect_discovery.py::test_route_rejects_empty_query PASSED  [ 63%]
+tests/test_prospect_discovery.py::test_route_rejects_overlong_query PASSED [ 65%]
+tests/test_prospect_discovery.py::test_docs_endpoint_is_available PASSED [ 67%]
+tests/test_prospect_discovery.py::test_openapi_schema_is_available PASSED [ 69%]
+tests/test_relevance_and_dedup.py::test_filter_relevant_excludes_llm_rejected_candidates PASSED [ 71%]
+tests/test_relevance_and_dedup.py::test_filter_relevant_empty_candidates_returns_empty PASSED [ 73%]
+tests/test_relevance_and_dedup.py::test_extract_profile_pulls_real_contact_info_from_snippet PASSED [ 75%]
+tests/test_relevance_and_dedup.py::test_consolidate_merges_exact_normalized_name_matches PASSED [ 77%]
+tests/test_relevance_and_dedup.py::test_consolidate_keeps_different_names_separate PASSED [ 79%]
+tests/test_relevance_and_dedup.py::test_consolidate_deduplicates_identical_links PASSED [ 81%]
+tests/test_sanitize_location.py::test_real_place_names_pass_through_unchanged PASSED [ 83%]
+tests/test_sanitize_location.py::test_none_and_empty_pass_through_as_none PASSED [ 85%]
+tests/test_sanitize_location.py::test_real_hallucinated_garbage_is_rejected PASSED [ 87%]
+tests/test_sanitize_location.py::test_text_containing_null_literal_is_rejected PASSED [ 89%]
+tests/test_sanitize_location.py::test_overlong_value_is_rejected PASSED  [ 91%]
+tests/test_validators.py::test_valid_query_passes PASSED                 [ 93%]
+tests/test_validators.py::test_empty_query_rejected PASSED               [ 95%]
+tests/test_validators.py::test_whitespace_only_query_rejected PASSED     [ 97%]
+tests/test_validators.py::test_over_length_query_rejected PASSED         [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\starlette\testclient.py:40
+  C:\Users\raiza\OneDrive\Documents\GitHub\prospecta\.venv\Lib\site-packages\starlette\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 49 passed, 5 deselected, 1 warning in 6.47s =================

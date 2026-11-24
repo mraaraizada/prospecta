@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "query": "Football lovers in Washington DC in USA",
+  "total_prospects": 1,
+  "prospects": [
+    {
+      "name": "James Galbally",
+      "location": "Washington DC",
+      "social_link": [
+        {
+          "platform": "LinkedIn",
+          "link": "https://www.linkedin.com/in/james-galbally-815038380"
+        }
+      ]
+    }
+  ],
+  "error": null
+}

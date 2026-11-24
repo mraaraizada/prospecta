@@ -1,14 +1,14 @@
 """Instagram platform searcher — Instagram's Graph API requires an approved
 Business app for arbitrary profile discovery (confirmed in Vortiq's identical
 investigation of Instagram's oEmbed limits). This surfaces publicly-indexed
-Instagram profile URLs via `site:instagram.com` Brave Search instead."""
+Instagram profile URLs via `site:instagram.com` Google Custom Search instead."""
 from __future__ import annotations
 
 import re
 
 import httpx
 
-from app.platforms import web_search
+from app.platforms import search_provider
 from app.platforms.base import PlatformSearcher, RawCandidate
 from app.platforms.site_search import site_restricted_search
 
@@ -19,10 +19,10 @@ class InstagramSearcher(PlatformSearcher):
     name = "Instagram"
 
     def is_configured(self) -> bool:
-        return web_search.is_configured()
+        return search_provider.is_configured()
 
     def missing_config_error(self) -> str:
-        return "Not configured: BRAVE_API_KEY is required (Instagram's Graph API requires an approved Business app for discovery)"
+        return "Not configured: SERPER_API_KEY is required (Instagram's Graph API requires an approved Business app for discovery)"
 
     async def search(self, client: httpx.AsyncClient, query_intent: dict, raw_query: str) -> list[RawCandidate]:
         return await site_restricted_search(client, self.name, "instagram.com", raw_query, _PROFILE_PATTERN)

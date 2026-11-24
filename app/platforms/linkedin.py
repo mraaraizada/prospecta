@@ -1,9 +1,9 @@
 """LinkedIn platform searcher — LinkedIn offers no public people-search API (its
 Community Management API is approval-gated; see Vortiq's identical finding for
 LinkedIn's company-page API). This module only surfaces LinkedIn profile URLs
-already publicly indexed by Brave Search via `site:linkedin.com`, filtered to
-real `/in/<handle>` personal-profile or `/company/<slug>` business-profile
-paths — never anything fetched by directly scraping linkedin.com itself.
+Google has already publicly indexed via `site:linkedin.com`, filtered to real
+`/in/<handle>` personal-profile or `/company/<slug>` business-profile paths —
+never anything fetched by directly scraping linkedin.com itself.
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import re
 
 import httpx
 
-from app.platforms import web_search
+from app.platforms import search_provider
 from app.platforms.base import PlatformSearcher, RawCandidate
 from app.platforms.site_search import site_restricted_search
 
@@ -22,10 +22,10 @@ class LinkedInSearcher(PlatformSearcher):
     name = "LinkedIn"
 
     def is_configured(self) -> bool:
-        return web_search.is_configured()
+        return search_provider.is_configured()
 
     def missing_config_error(self) -> str:
-        return "Not configured: BRAVE_API_KEY is required (LinkedIn has no public search API of its own)"
+        return "Not configured: SERPER_API_KEY is required (LinkedIn has no public search API of its own)"
 
     async def search(self, client: httpx.AsyncClient, query_intent: dict, raw_query: str) -> list[RawCandidate]:
         return await site_restricted_search(client, self.name, "linkedin.com", raw_query, _PROFILE_PATTERN)
