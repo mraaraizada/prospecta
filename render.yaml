@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: prospecta
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: SERPER_API_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: PROSPECTA_LLM_TIMEOUT
+        value: "60"
+      - key: PROSPECTA_REQUEST_TIMEOUT
+        value: "15"
