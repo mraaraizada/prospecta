@@ -14,7 +14,7 @@ from app.main import app
 from app.services.prospect_service import discover_prospects
 
 GEMINI_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.gemini_model}:generateContent"
-CSE_ENDPOINT = "https://www.googleapis.com/customsearch/v1"
+BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/web/search"
 YOUTUBE_ENDPOINT = "https://www.googleapis.com/youtube/v3/search"
 
 _INTENT_BODY = {"interest": "Football", "audience": "Football lovers", "location": {"city": "Washington DC", "state": "DC", "country": "USA"}, "target_type": "individual"}
@@ -24,8 +24,7 @@ _RELEVANCE_BODY = {"results": [{"id": 0, "is_relevant": True, "display_name": "J
 @pytest.fixture(autouse=True)
 def configured(monkeypatch):
     monkeypatch.setattr(settings, "gemini_api_key", "test-key")
-    monkeypatch.setattr(settings, "google_cse_api_key", "test-key")
-    monkeypatch.setattr(settings, "google_cse_id", "test-cx")
+    monkeypatch.setattr(settings, "brave_api_key", "test-key")
     monkeypatch.setattr(settings, "youtube_api_key", "test-yt-key")
 
 
@@ -43,7 +42,7 @@ def _mock_gemini_calls():
 @respx.mock
 async def test_full_pipeline_success():
     _mock_gemini_calls()
-    respx.get(CSE_ENDPOINT).mock(return_value=httpx.Response(200, json={"items": [{"title": "John Smith - Football Fan", "snippet": "Lives in DC, loves football", "link": "https://www.linkedin.com/in/johnsmith"}]}))
+    respx.get(BRAVE_ENDPOINT).mock(return_value=httpx.Response(200, json={"web": {"results": [{"title": "John Smith - Football Fan", "description": "Lives in DC, loves football", "url": "https://www.linkedin.com/in/johnsmith"}]}}))
     respx.get(YOUTUBE_ENDPOINT).mock(return_value=httpx.Response(200, json={"items": []}))
 
     response = await discover_prospects("Football lovers in Washington DC in USA")
@@ -71,12 +70,12 @@ async def test_llm_intent_failure_is_a_clean_result():
 @respx.mock
 async def test_one_platform_failure_does_not_crash_the_whole_request():
     _mock_gemini_calls()
-    respx.get(CSE_ENDPOINT).mock(return_value=httpx.Response(500))
+    respx.get(BRAVE_ENDPOINT).mock(return_value=httpx.Response(500))
     respx.get(YOUTUBE_ENDPOINT).mock(return_value=httpx.Response(200, json={"items": [{"id": {"channelId": "UC1"}, "snippet": {"title": "DC Football Channel", "description": "All about DC football"}}]}))
 
     response = await discover_prospects("Football lovers in Washington DC")
     # Google/LinkedIn/X/Instagram/Facebook/Threads/WhatsApp all use the same
-    # (failing) CSE endpoint and are isolated; the request still completes.
+    # (failing) Brave endpoint and are isolated; the request still completes.
     assert response.success is True
 
 
@@ -94,7 +93,7 @@ async def test_no_relevant_results_returns_empty_prospect_list_not_a_failure():
         return httpx.Response(200, json={"candidates": [{"content": {"parts": [{"text": json.dumps({"results": []})}]}}]})
 
     respx.post(GEMINI_ENDPOINT).mock(side_effect=gemini_responder)
-    respx.get(CSE_ENDPOINT).mock(return_value=httpx.Response(200, json={"items": []}))
+    respx.get(BRAVE_ENDPOINT).mock(return_value=httpx.Response(200, json={"web": {"results": []}}))
     respx.get(YOUTUBE_ENDPOINT).mock(return_value=httpx.Response(200, json={"items": []}))
 
     response = await discover_prospects("Football lovers in Washington DC")

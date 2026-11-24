@@ -6,14 +6,14 @@ Prospecta is an AI-powered multi-platform prospect discovery API: a FastAPI serv
 
 ### A note on scope and ethics
 
-This spec's core function — discovering real people's names, locations, and contact details — is a sensitive category. This implementation is deliberately scoped to stay on the legitimate side of that line: it **never scrapes an authenticated page, never bypasses a platform's own access controls, and never invents, guesses, or pattern-generates a name, link, email, or phone number**. Every platform without a genuine authorized discovery API (LinkedIn, X, Instagram, Facebook, Threads, WhatsApp — see Known Limitations) is handled through Google's official Custom Search API, which only surfaces pages those platforms have *already chosen to make publicly indexable* — the same mechanism as typing `site:linkedin.com ...` into google.com, not a scraper.
+This spec's core function — discovering real people's names, locations, and contact details — is a sensitive category. This implementation is deliberately scoped to stay on the legitimate side of that line: it **never scrapes an authenticated page, never bypasses a platform's own access controls, and never invents, guesses, or pattern-generates a name, link, email, or phone number**. Every platform without a genuine authorized discovery API (LinkedIn, X, Instagram, Facebook, Threads, WhatsApp — see Known Limitations) is handled through the Brave Search API, which only surfaces pages those platforms have *already chosen to make publicly indexable* — the same mechanism as typing `site:linkedin.com ...` into a search engine, not a scraper.
 
 ### Key Features
 
 - **`POST /prospect-discovery`** — one endpoint, natural-language query in, structured prospect list out
 - **Real LLM Query Understanding** — Gemini parses interest/audience/location/target_type with native schema-enforced JSON output
 - **8 Platform Integrations, Real and Honestly Scoped** — Google, LinkedIn, X, YouTube, Instagram, Facebook, Threads, WhatsApp (see below for exactly what's real per platform)
-- **One Real, Authorized API Per Discovery Mechanism** — Google Custom Search JSON API (the actual discovery engine for 7 of the 8 platforms) and the YouTube Data API v3 (the one platform with its own direct keyword-search API)
+- **One Real, Authorized API Per Discovery Mechanism** — Brave Search API (the actual discovery engine for 7 of the 8 platforms) and the YouTube Data API v3 (the one platform with its own direct keyword-search API)
 - **LLM Relevance Filtering, Not Keyword Matching** — a single batched LLM call judges every candidate against the actual query intent, grounded strictly in each candidate's real title/snippet text, never on name alone
 - **Conservative Duplicate Consolidation** — merges profiles only on an exact normalized name match, a deliberate choice to avoid the spec's explicitly-warned-against failure mode (merging two different people who share a name)
 - **Zero Fabrication** — every name, link, email, and phone number returned is extracted verbatim from a real search result; nothing is pattern-generated or guessed
@@ -27,7 +27,7 @@ This spec's core function — discovering real people's names, locations, and co
 - [Pydantic v2](https://docs.pydantic.dev/) - request/response schemas
 - [HTTPX](https://www.python-httpx.org/) - async HTTP client for every API call
 - [Google Gemini API](https://ai.google.dev/) - query understanding and relevance classification
-- [Google Custom Search JSON API](https://developers.google.com/custom-search/v1/overview) - the real, authorized discovery engine
+- [Brave Search API](https://developers.google.com/custom-search/v1/overview) - the real, authorized discovery engine
 - [YouTube Data API v3](https://developers.google.com/youtube/v3) - real channel search
 - [pytest](https://docs.pytest.org/) / [pytest-asyncio](https://github.com/pytest-dev/pytest-asyncio) / [respx](https://lundberg.github.io/respx/) - async test suite with mocked HTTP
 
@@ -55,7 +55,7 @@ See [`SETUP_CHECKLIST.md`](SETUP_CHECKLIST.md) for exact, step-by-step instructi
 | Credential | What it's for |
 |---|---|
 | `GEMINI_API_KEY` | Query understanding + relevance classification |
-| `GOOGLE_CSE_API_KEY` + `GOOGLE_CSE_ID` | The real discovery engine for Google/LinkedIn/X/Instagram/Facebook/Threads/WhatsApp |
+| `BRAVE_API_KEY` | The real discovery engine for Google/LinkedIn/X/Instagram/Facebook/Threads/WhatsApp |
 | `YOUTUBE_API_KEY` | Real YouTube channel search |
 
 **Never commit a filled-in `.env`** — it's already gitignored.
@@ -92,7 +92,7 @@ prospecta/
 │   ├── schemas.py                   # Request/response models + input validation
 │   ├── platforms/
 │   │   ├── base.py                  # PlatformSearcher interface
-│   │   ├── google_cse.py            # Shared Google Custom Search client
+│   │   ├── web_search.py            # Shared Brave Search client
 │   │   ├── site_search.py           # Shared site:-restricted search + URL-shape filtering
 │   │   ├── google.py                # Google — direct Custom Search
 │   │   ├── linkedin.py              # LinkedIn — via site:linkedin.com
@@ -136,14 +136,14 @@ prospecta/
 
 | Platform | Discovery mechanism | Real? |
 |---|---|---|
-| Google | Direct Google Custom Search query | **Yes** — a real, direct API call |
+| Google | Direct Brave Search query | **Yes** — a real, direct API call |
 | YouTube | Real YouTube Data API v3 `search.list` | **Yes** — a real, direct, platform-specific API |
-| LinkedIn | `site:linkedin.com` via Google Custom Search, filtered to `/in/` and `/company/` URLs | Real discovery of already-public, Google-indexed profile links; LinkedIn's own Community Management API requires an approved application (same finding as the sibling Vortiq project) |
-| X | `site:x.com` via Google Custom Search, filtered to profile (not status) URLs | Same pattern — X's keyword-search API requires a paid developer tier |
-| Instagram | `site:instagram.com` via Google Custom Search, filtered to profile (not post) URLs | Same pattern — Instagram's Graph API requires an approved Business app |
-| Facebook | `site:facebook.com` via Google Custom Search, filtered to real page/profile URLs | Same pattern — Facebook's Graph API requires App Review |
-| Threads | `site:threads.net` via Google Custom Search | Same pattern — Threads has no public search API at all |
-| WhatsApp | `site:wa.me` via Google Custom Search | Best-effort by design — WhatsApp has **no discovery API of any kind**; this only finds `wa.me` links a business has already published publicly |
+| LinkedIn | `site:linkedin.com` via Brave Search, filtered to `/in/` and `/company/` URLs | Real discovery of already-public, Google-indexed profile links; LinkedIn's own Community Management API requires an approved application (same finding as the sibling Vortiq project) |
+| X | `site:x.com` via Brave Search, filtered to profile (not status) URLs | Same pattern — X's keyword-search API requires a paid developer tier |
+| Instagram | `site:instagram.com` via Brave Search, filtered to profile (not post) URLs | Same pattern — Instagram's Graph API requires an approved Business app |
+| Facebook | `site:facebook.com` via Brave Search, filtered to real page/profile URLs | Same pattern — Facebook's Graph API requires App Review |
+| Threads | `site:threads.net` via Brave Search | Same pattern — Threads has no public search API at all |
+| WhatsApp | `site:wa.me` via Brave Search | Best-effort by design — WhatsApp has **no discovery API of any kind**; this only finds `wa.me` links a business has already published publicly |
 
 ### LLM-Grounded Relevance Filtering
 
@@ -171,7 +171,7 @@ pytest -q
 pytest -m live -v -s
 ```
 
-Runs all 5 of the spec's required test queries (Football lovers in Washington DC, Digital marketing agency owners in New York, Startup founders in London, Cricket lovers in Ahmedabad, Restaurant owners in Dubai) against the real Gemini, Google Custom Search, and YouTube APIs, printing each real result.
+Runs all 5 of the spec's required test queries (Football lovers in Washington DC, Digital marketing agency owners in New York, Startup founders in London, Cricket lovers in Ahmedabad, Restaurant owners in Dubai) against the real Gemini, Brave Search, and YouTube APIs, printing each real result.
 
 ## LLM Platform & Model Research
 
@@ -187,7 +187,8 @@ Full comparison and recommendation: **[`docs/llm_research.md`](docs/llm_research
 
 ## Known Limitations
 
-- **LinkedIn, X, Instagram, Facebook, Threads, and WhatsApp have no public, tokenless, arbitrary-people-search API.** This is a real, confirmed platform constraint (the same finding already documented in the sibling Vortiq project for LinkedIn/Instagram specifically), not a gap in this implementation — each of these is handled via Google Custom Search's `site:` filtering instead, which only surfaces what's already publicly indexed. A production system with a real need for deeper coverage on these platforms would require applying for and being approved for each platform's own partner/business API program — out of scope for a 4-hour practical test.
+- **Google's own Custom Search JSON API is confirmed closed to new customers** (as of this writing; existing customers have until 2027-01-01 to transition, per Google's own docs) — a real, live-confirmed finding during development: enabling the API in a new Google Cloud project shows "Enabled" in the console, but every real request returns a genuine `403 "This project does not have the access to Custom Search JSON API"`, with no billing or account-level workaround. This is why the project uses the Brave Search API instead — a real, currently-available alternative with its own genuine free tier.
+- **LinkedIn, X, Instagram, Facebook, Threads, and WhatsApp have no public, tokenless, arbitrary-people-search API.** This is a real, confirmed platform constraint (the same finding already documented in the sibling Vortiq project for LinkedIn/Instagram specifically), not a gap in this implementation — each of these is handled via Brave Search's `site:` filtering instead, which only surfaces what's already publicly indexed. A production system with a real need for deeper coverage on these platforms would require applying for and being approved for each platform's own partner/business API program — out of scope for a 4-hour practical test.
 - **Duplicate consolidation is exact-name-match only**, by deliberate design (see Features in Detail) — it will under-merge the same person using meaningfully different name spellings across platforms, a tradeoff chosen specifically to avoid the opposite, more harmful failure the spec warns against.
 - **No persistence/caching layer.** Each request re-runs the full discovery pipeline from scratch — out of scope for this practical test, though caching query-understanding results is documented as a real cost-optimization opportunity in `docs/llm_research.md`.
-- **Google Custom Search's free tier is capped at 100 queries/day**, and each discovery request makes up to 7 CSE calls (one per site-restricted platform) — a real, practical limit on how many discovery requests can be made per day without a paid CSE tier.
+- **Brave Search's free tier is capped at 100 queries/day**, and each discovery request makes up to 7 CSE calls (one per site-restricted platform) — a real, practical limit on how many discovery requests can be made per day without a paid CSE tier.

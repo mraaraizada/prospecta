@@ -12,7 +12,7 @@ import re
 
 import httpx
 
-from app.platforms import google_cse
+from app.platforms import web_search
 from app.platforms.base import PlatformSearcher, RawCandidate
 from app.platforms.site_search import site_restricted_search
 
@@ -23,10 +23,10 @@ class WhatsAppSearcher(PlatformSearcher):
     name = "WhatsApp"
 
     def is_configured(self) -> bool:
-        return google_cse.is_configured()
+        return web_search.is_configured()
 
     def missing_config_error(self) -> str:
-        return "Not configured: GOOGLE_CSE_API_KEY and GOOGLE_CSE_ID are required (WhatsApp has no discovery API at all — this is best-effort indexed-link discovery only)"
+        return "Not configured: BRAVE_API_KEY is required (WhatsApp has no discovery API at all — this is best-effort indexed-link discovery only)"
 
     async def search(self, client: httpx.AsyncClient, query_intent: dict, raw_query: str) -> list[RawCandidate]:
         return await site_restricted_search(client, self.name, "wa.me", raw_query, _PROFILE_PATTERN)

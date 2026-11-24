@@ -37,7 +37,7 @@ Implemented directly in this codebase, not just suggested:
 - **An empty candidate list skips the relevance call entirely** (`score_relevance_batch` returns `[]` immediately, verified by `tests/test_llm_service.py::test_score_relevance_batch_empty_candidates_skips_the_call`) — no wasted call when every platform search comes back empty.
 - **Deterministic validation instead of LLM calls wherever possible**: email/phone/WhatsApp-link extraction (`app/utils/normalizers.py`) is pure regex against already-public text, not a third LLM call; duplicate consolidation (`app/services/deduplication_service.py`) is deterministic exact-name-match grouping, not an LLM judgment call.
 - **A cheap/fast model tier was selected deliberately** for a task that doesn't need flagship-level reasoning.
-- **Results per platform are capped** (`Settings.max_results_per_platform`, default 5) — bounds both the number of candidates sent to the batched relevance call and the number of real Google Custom Search / YouTube API quota units consumed per request.
+- **Results per platform are capped** (`Settings.max_results_per_platform`, default 5) — bounds both the number of candidates sent to the batched relevance call and the number of real Brave Search / YouTube API quota units consumed per request.
 
 ## D. Final LLM Recommendation
 

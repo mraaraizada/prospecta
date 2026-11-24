@@ -8,22 +8,16 @@ Three real credentials, all free-tier. Exact steps below.
 2. Click **Create API key**.
 3. Copy it into `.env` as `GEMINI_API_KEY`.
 
-## 2. Google Custom Search API Key + Search Engine ID (~5 minutes)
+## 2. Brave Search API Key (~2 minutes)
 
 This is the real discovery engine for 7 of the 8 platforms.
 
-**A. Create a Programmable Search Engine:**
-1. Go to [programmablesearchengine.google.com](https://programmablesearchengine.google.com/).
-2. Click **Add** → give it any name.
-3. Under "What to search?", choose **Search the entire web**.
-4. Create it, then go to its **Setup** page and copy the **Search engine ID** (this is `cx`) into `.env` as `GOOGLE_CSE_ID`.
+**Note:** Google's own Custom Search JSON API is confirmed **closed to new customers** (no workaround — billing doesn't unlock it), which is why this project uses Brave Search instead.
 
-**B. Get an API key and enable the Custom Search API:**
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/library/customsearch.googleapis.com) and enable the **Custom Search API** for a project (create one if you don't have one).
-2. Go to **APIs & Services → Credentials → Create Credentials → API key**.
-3. Copy it into `.env` as `GOOGLE_CSE_API_KEY`.
-
-Free tier: 100 queries/day.
+1. Go to [brave.com/search/api](https://brave.com/search/api/) and sign up for a free account.
+2. Create a subscription on the **Free** plan (2,000 queries/month).
+3. Go to your dashboard's API Keys section and copy your key.
+4. Copy it into `.env` as `BRAVE_API_KEY`.
 
 ## 3. YouTube Data API Key (~2 minutes)
 
