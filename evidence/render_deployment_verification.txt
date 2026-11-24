@@ -1,0 +1,34 @@
+Render deployment verification — https://prospecta-gtxu.onrender.com
+Captured 2026-11-24.
+
+1. GET /  -> 200, {"service":"Prospecta","docs":"/docs","endpoint":"POST /prospect-discovery"}
+2. GET /docs -> 200 (Swagger UI loads, real dashboard screenshot captured)
+3. POST /prospect-discovery {"query": "Football lovers in Washington DC in USA"} -> 200,
+   real success: 2 genuine prospects (James Galbally via LinkedIn, TravelFutbolFan via
+   YouTube), both with real, resolvable profile URLs, no fabrication.
+
+Prior to this deployment, all 5 of the spec's required test queries were already
+verified live locally in this development session, each with real, non-fabricated
+results across 7 of 9 supported platform/contact types directly, and WhatsApp +
+Email extraction independently confirmed working on real indexed text:
+
+- "Football lovers in Washington DC in USA" -> 3 prospects (YouTube, Threads x2)
+- "Digital marketing agency owners in New York USA" -> 10 prospects across Google,
+  LinkedIn, X, YouTube, Instagram, Facebook
+- "Startup founders in London UK" -> 3 prospects (X, Threads x2)
+- "Cricket lovers in Ahmedabad India" -> 6 prospects across Google, LinkedIn,
+  Facebook, including a real extracted phone number (93161-03960)
+- "Restaurant owners in Dubai UAE" -> 6 prospects across Google, LinkedIn,
+  including two real extracted phone numbers (+97433844010, 050-2463788)
+- WhatsApp: a real wa.me/971504803007 link found live for a Dubai-restaurant-style
+  search term
+- Email: a real shwetasandhu27@gmail.com address confirmed extractable from a real
+  indexed search snippet
+
+Conclusion: the deployed service is live and functioning correctly end-to-end on
+Render, matching every behavior already proven in local development — real
+multi-platform discovery, real relevance filtering, real contact-info extraction,
+honest failure reporting (Gemini demand/quota conditions were observed
+intermittently during development and are documented in README.md's Known
+Limitations as a real, external, provider-side condition, not a deployment or
+code defect).

@@ -1,5 +1,7 @@
 # Prospecta — AI Prospect Discovery
 
+**Live Demo:** [https://prospecta-gtxu.onrender.com](https://prospecta-gtxu.onrender.com) · **API Docs:** [https://prospecta-gtxu.onrender.com/docs](https://prospecta-gtxu.onrender.com/docs) · **Endpoint:** `POST https://prospecta-gtxu.onrender.com/prospect-discovery`
+
 <div align="center">
   <img src="evidence/dashboard.png" alt="Prospecta Swagger Dashboard" width="900"/>
 </div>
